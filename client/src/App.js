@@ -20,7 +20,7 @@ class App extends Component {
 
   submitFormAPI = (payload) => {
     console.log('PAYLOAD', payload)
-    fetch("http://localhost:9000/get_recommendation", {
+    fetch("/get_recommendation", {
       method: 'POST',
       body: JSON.stringify(payload),
       headers: {
@@ -42,7 +42,7 @@ class App extends Component {
   changeFavoriteAPI = (isfavorite, movieId, userId) => {
     const payload = {isfavorite:isfavorite, movieId: movieId, userId: userId}
     console.log('PAYLOAD', payload)
-    fetch("http://localhost:9000/add_to_favorite", {
+    fetch("/add_to_favorite", {
       method: 'POST',
       body: JSON.stringify(payload),
       headers: {
@@ -55,7 +55,7 @@ class App extends Component {
   getSimilarMovieAPI = (movieId, userId) => {
     const payload = {movieId: movieId, userId: userId}
     console.log('PAYLOAD_BEFORE_PASS', payload)
-    fetch("http://localhost:9000/get_similar_movies", {
+    fetch("/get_similar_movies", {
       method: 'POST',
       body: JSON.stringify(payload),
       headers: {
@@ -73,7 +73,7 @@ class App extends Component {
   }
 
   getDistinctAPI = () => {
-    fetch("http://localhost:9000/get_meta")
+    fetch("/get_meta")
       .then(res => res.json())
       .then(data => {
         const dct = {
