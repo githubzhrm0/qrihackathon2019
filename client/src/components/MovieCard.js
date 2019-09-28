@@ -36,7 +36,7 @@ export default class MovieCard extends Component {
     getSimilarMoviesHandler = () => {
         if (this.props.getSimilarMovieHandler !== undefined){
             console.log(this.props.getSimilarMovieHandler)
-            this.props.getSimilarMovieHandler(this.props.movieId, this.props.userId)
+            this.props.getSimilarMovieHandler(this.props.title, this.props.movieId, this.props.userId)
         }
     }
 
@@ -67,7 +67,7 @@ export default class MovieCard extends Component {
         return (
             <Card>
                 <CardHeader onClick={this.getSimilarMoviesHandler}><h5>{ttl}</h5></CardHeader>
-                <CardImg style={imgStyle} src={picUrl} alt={picUrl} />
+                <a href={link} target="_blank"><CardImg style={imgStyle} src={picUrl} alt={picUrl} href={link} target="_blank"/></a>
                 <CardBody>
                     <CardText style={cardTextStyle}><a href={link} target="_blank">{description}</a></CardText>
                     <Button color={this.state.colorStyle} onClick={this.favoriteButtonClickHandler}>{this.state.text}</Button>

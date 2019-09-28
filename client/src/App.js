@@ -7,6 +7,9 @@ import Header from './components/Header'
 import SearchForm from './components/SearchForm'
 import MovieCard from './components/MovieCard'
 
+import Carousel from 'react-multi-carousel';
+import 'react-multi-carousel/lib/styles.css';
+
 class App extends Component {
   constructor(props) {
     super(props);
@@ -14,6 +17,7 @@ class App extends Component {
       movies: [],
       searchResultClass: "d-none",
       similarMovies: [],
+      selectedMovieName: '',
       similarMovieClass: "d-none",
     }
   }
@@ -33,6 +37,7 @@ class App extends Component {
           movies: movies,
           searchResultClass: "d-block",
           similarMovies: [],
+          selectedMovieName: '',
           similarMovieClass: "d-none",
         })
       })
@@ -40,7 +45,7 @@ class App extends Component {
   }
 
   changeFavoriteAPI = (isfavorite, movieId, userId) => {
-    const payload = {isfavorite:isfavorite, movieId: movieId, userId: userId}
+    const payload = { isfavorite: isfavorite, movieId: movieId, userId: userId }
     console.log('PAYLOAD', payload)
     fetch("/add_to_favorite", {
       method: 'POST',
@@ -52,8 +57,8 @@ class App extends Component {
       .catch(err => err);
   }
 
-  getSimilarMovieAPI = (movieId, userId) => {
-    const payload = {movieId: movieId, userId: userId}
+  getSimilarMovieAPI = (movieName, movieId, userId) => {
+    const payload = { movieId: movieId, userId: userId }
     console.log('PAYLOAD_BEFORE_PASS', payload)
     fetch("/get_similar_movies", {
       method: 'POST',
@@ -65,6 +70,7 @@ class App extends Component {
       .then(data => {
         const movies = data.movies
         this.setState({
+          selectedMovieName: movieName,
           similarMovies: movies,
           similarMovieClass: "d-block",
         })
@@ -76,9 +82,11 @@ class App extends Component {
     fetch("/get_meta")
       .then(res => res.json())
       .then(data => {
+        const genres = ['tv', 'documentary', 'drama', 'comedy', 'mystery', 'history', 'fantasy', 'western', 'war', 'science', 'foreign', 'animation', 'music', 'adventure', 'crime', 'action', 'romance', 'fiction', 'horror', 'family', 'thriller', 'movie']
+        genres.sort()
         const dct = {
-          genres: ['tv', 'documentary', 'drama', 'comedy', 'mystery', 'history', 'fantasy', 'western', 'war', 'science', 'foreign', 'animation', 'music', 'adventure', 'crime', 'action', 'romance', 'fiction', 'horror', 'family', 'thriller', 'movie'],
-          countries: data.countryData.filter((el) => el.length > 1).slice(0, 20), 
+          genres,
+          countries: data.countryData.filter((el) => el.length > 1).slice(0, 20),
           languages: data.languageData.slice(0, 20)
         }
         this.setState(dct)
@@ -99,6 +107,27 @@ class App extends Component {
   }
 
   render() {
+
+    const responsive = {
+      superLargeDesktop: {
+        // the naming can be any, depends on you.
+        breakpoint: { max: 4000, min: 3000 },
+        items: 8,
+      },
+      desktop: {
+        breakpoint: { max: 3000, min: 1024 },
+        items: 6,
+      },
+      tablet: {
+        breakpoint: { max: 1024, min: 464 },
+        items: 4,
+      },
+      mobile: {
+        breakpoint: { max: 464, min: 0 },
+        items: 1,
+      },
+    };
+
     return (
       <div className="App">
         <Header />
@@ -119,10 +148,22 @@ class App extends Component {
           <Card>
             <CardHeader><h2>Search Results</h2></CardHeader>
             <CardBody>
-              <Row>
+              <Carousel
+                swipeable={false}
+                draggable={false}
+                showDots={true}
+                responsive={responsive}
+                ssr={true} // means to render carousel on server-side.
+                infinite={true}
+                keyBoardControl={true}
+                containerClass="carousel-container"
+                removeArrowOnDeviceType={["tablet", "mobile"]}
+                deviceType={this.props.deviceType}
+                dotListClass="custom-dot-list-style"
+                itemClass="carousel-item-padding-40-px"
+              >
                 {this.state.movies.map(movie =>
-                <Col sm="12" md="6" lg="4" xl="3">
-                   <MovieCard
+                  <MovieCard
                     key={movie.movieId}
                     url={movie.url}
                     title={movie.title}
@@ -134,20 +175,31 @@ class App extends Component {
                     changeFavoriteHandler={this.changeFavoriteAPI}
                     getSimilarMovieHandler={this.getSimilarMovieAPI}
                   />
-                </Col>
                 )}
-              </Row>
+              </Carousel>;
             </CardBody>
           </Card>
         </Container>
 
         <Container fluid={true} className={this.state.similarMovieClass}>
           <Card>
-            <CardHeader><h2>Similar Movies</h2></CardHeader>
+            <CardHeader><h2>Similar Movies To "{this.state.selectedMovieName}"</h2></CardHeader>
             <CardBody>
-              <Row>
-                  {this.state.similarMovies.map(movie =>
-                  <Col sm="12" md="6" lg="4" xl="3">
+            <Carousel
+                swipeable={false}
+                draggable={false}
+                showDots={true}
+                responsive={responsive}
+                ssr={true} // means to render carousel on server-side.
+                infinite={true}
+                keyBoardControl={true}
+                containerClass="carousel-container"
+                removeArrowOnDeviceType={["tablet", "mobile"]}
+                deviceType={this.props.deviceType}
+                dotListClass="custom-dot-list-style"
+                itemClass="carousel-item-padding-40-px"
+              >
+                {this.state.similarMovies.map(movie =>
                     <MovieCard
                       key={movie.movieId}
                       url={movie.url}
@@ -157,10 +209,10 @@ class App extends Component {
                       userId={movie.userId}
                       isfavorite={movie.isfavorite}
                       movieId={movie.movieId} //!!!! id
+                      changeFavoriteHandler={this.changeFavoriteAPI}
                     />
-                  </Col>
-                  )}
-                </Row>
+                )}
+              </Carousel>
             </CardBody>
           </Card>
         </Container>
