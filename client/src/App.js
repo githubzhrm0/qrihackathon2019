@@ -176,7 +176,7 @@ class App extends Component {
                     getSimilarMovieHandler={this.getSimilarMovieAPI}
                   />
                 )}
-              </Carousel>;
+              </Carousel>
             </CardBody>
           </Card>
         </Container>
